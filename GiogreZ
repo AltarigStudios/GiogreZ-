@@ -1,0 +1,1849 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local LIBRARY_NAME = "SCRIPT LIBRARY"
+local DEFAULT_STATUS = "Pick a script and press START!"
+local CATEGORIES = {"All", "Movement", "Utility", "Visual", "Player", "Miscellaneous"}
+local DESIGN_W = 600
+local DESIGN_H = 400
+
+------------------------------------------------------------------------
+-- EMBEDDED IMAGES (base64 text, no asset ids needed): gear button, studs texture, black sketch icons
+-- Do not edit the random-looking text below. It is decoded at startup, saved
+-- with writefile and loaded with getcustomasset (executors such as Delta).
+-- If those functions do not exist, the library draws the same look with code.
+------------------------------------------------------------------------
+
+local BUTTON_PNG_B64 = [[
+iVBORw0KGgoAAAANSUhEUgAAAWgAAAB/CAMAAAD1n6hwAAABIFBMVEUqpBERWxlhpBZTXWOSpK0NShsnZRCe4ibW+l4aKhJm4BLA092b10gISxl8oLOEqBEB
+PhBrfIYOOyYIPhM+0hFhew88UFu+0+BVVVV2wEeNrsDu/YC4+hMEmkMCSBO4y9Za5gUJCQtp5wpvlKcDhDKM8xEElDsFVBbH+xrV/CSQ+ifk/ClKuRWN6xM9
+yg8AAAAIkwsAPQ8RExBv8wZS2Q0baBEEeyyLp7UhbRMDRBJ94iIEjQu90dxpjqJHyhCD5iVrhpWlvMir5xWL2Bg4Rk5rySZRZ3N22CZZd4cERRRPZw7C1uHy
+/Xek2hMcIiUqNgssNTo1Rw0jKCsBPgKatMJFWWQZJAuJthJYdRBlhhAIaSYwPENEWg6TxRIAVQBl1xXb1YvHAAAAYHRSTlP/GP///2D6///2////rv//nP8V
+bP////8D///////+///////////+/////////wD//v/////////Q////////////////////lP///////////wX/////////////A/+0T/psAAAPKElEQVR4
+2u2diV/a2BbHQ1is9lm7TGfekrIEaGJrigYkioCAlEEcZRFEa9X//794d8/Nhkppc9+b/D6tkIWQfHM4OTn33FypxOkS/I/F3r0+pXr9+pBT2jGBZL8j2ks/
+U3t77um9gK1xS+hb/LoXsKln6ND1vb5bOgzS+vq6TQzRS8YITibJfnsPKCdP05FWotfvLhFSL+hY6e1pWtMiRCsTNOuYGzRgnzxcyeb3yI9wTwyRHUnTKeeO
+OSbT9idWQkLTAOpLJ+jLUmzTx0c+uqUg7T9BB0j79P/+AZlzQBemDg7sdahSqdRBsNAn95eXvf++h7XoF79nn589BvEQ+AkeNOCcJptIyfJXXn+iPx7VoI5t
+ffr/FHeENVsuFl892pFT9IwkiU1LmHMSz92Xa0/5+iIQ/94p/7n+632CL9ys4lPFfceTdpet57s+2wvHnB9STd4n7gOTljjOmoxWKauRflToNO3sIzfxDgUf
+ErwwxuD03v6fz4Sczf6dWT528GVg1RLxHvcI9H0MOpS91KdP7g1lf5ng1y1cHHyyf+A7Vb/9+PFDYaiLn6Q9dEWMQdD3pVNo0NKnouMIjEAVjacIejz4xzkn
+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
+YuYM9F/LeXCyidFHTAAAAABJRU5ErkJggg==
+]]
+
+local ICONS_PNG_B64 = [[
+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
+ZPiiLQAAAABJRU5ErkJggg==
+]]
+
+local STUDS_JPG_B64 = [[
+/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/
+2wBDAQcICAsJCxULCxUsHRkdLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCz/wAARCACAAIADASIAAhEBAxEB/8QA
+GAABAQEBAQAAAAAAAAAAAAAAAwUEAAH/xAAuEAACAgEDAwIGAgIDAQAAAAABAgMEAAURIRQxQQYSEyIyNHGSUXIzQ0JTYbH/xAAVAQEBAAAAAAAAAAAAAAAA
+AAAAAf/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/APcdaVp0DLXlZT2IXvmSwxWvIQdiFJxfT2qWZdEhaRkkYluXXc98BjRtgE9LNxz9JwMv
+6bqUvUtusewQnhdu2SLwA1GwAAB8Ru35yqz460rTqGWvIwPIIXvmSwStaRgdiFJGL6e1SzJokDSFHY+7ll3PfIhjRtgE9LNxz9JwMv6bqM3UtusfCE8Lt2yR
+fAGo2AAAPiHgfnCs+OtK06Blrysp7EL3zJYYrXkIOxCk4vp7VLMuiQtIySMS3Lrue+EMaNsAnpZuOfpOBl/TdSl6lt1j2CE8Lt2yReAGo2AAAPiN2/OVWfHW
+ladQy15GB5BC98yWCVrSMDsQpIxfT2qWZNEgaQo7H3csu575EMaNsAnpZuOfpOBl/TdRm6lt1j4Qnhdu2SL4A1GwAAB8Q8D84VitfaS/0OSdE1ujT0qOvYka
+ORCwI9hPnLfPjBNSsf8ARH+uELpvqPTHuBFnYtIpQfIe5x7jK96dlIKlyQR5zItWBW3WFAR52xfGFFa+0l/ock6JrdGlpUdexI0ckZYEewnzlvB6Ovv/AII/
+1whdO9R6Y9v2LOxZ1KD5D5zRcZXvTspBUuSCPOY1rQKwKwoCPO2LgFa+0l/ock6JrdGnpUdexI0ciFgR7CfOW+fGCalY/wCiP9cBdN9R6Y9wIs7FpFKD5D3O
+PcZXvTspBUuSCPOZFqwK26woCPO2L4worX2kv9DknRNbo0tKjr2JGjkjLAj2E+ct4PR19/8ABH+uELp3qPTHt+xZ2LOpQfIfOaLjK96dlIKlyQR5zGtaBWBW
+FAR52xcDsdaVp1DJXlZTyCFzJYJWtIwOxCnY4vp7VLMuiQNIUkY+7ll3PfAc0bYBPSzbDn6DmfL+nalN1LbrHwhPC7dsj3gBqNgAAD4h4H5wAx1pWnUMteQq
+ex9vfMlhitaRgdiFOL6e1SzLocDSFJG3bll3PfAc0bYBJqzcc/Qcz5f07UpupO6x/QTwu2SL4A1GwAAB8Q9vzgZ8daVp1DJXlZTyCFzJYJWtIwOxCnY4vp7V
+LMuiQNIUkY+7ll3PfAc0bYBPSzbDn6DmfL+nalN1LbrHwhPC7dsj3gBqNgAAD4h4H5wAx1pWnUMteQqex9vfMlhitaRgdiFOL6e1SzLocDSFJG3bll3PfAc0
+bYBJqzcc/Qcz5f07UpupO6x/QTwu2SL4A1GwAAB8Q9vzgYrX2kv9DknRNbo0tKjr2JGjkQsCPYT5y3g9HX/6I/1wE071Hpj3AizsWdSg+Q+c0XGV707KQyly
+QR5zItWBTusKAjyBi4UVr7Sb+hyTout0aWlR17ErRyIWBBQ/zlvfB6SsTv8AAj/XCE071Hpj2/Ys7FnUoPkPc5ouMr3ZmVgylyQRmRasCndYUBHkDFworX2k
+v9DknRNbo0tKjr2JGjkQsCPYT5y3g9HX/wCiP9cITTvUemPcCLOxZ1KD5D5zRcZXvTspDKXJBHnMi1YFO6woCPIGLhRWvtJv6HJOi63RpaVHXsStHIhYEFD/
+ADlvfB6SsTv8CP8AXCE071Hpj2/Ys7FnUoPkPc5ouMr3ZmVgylyQRmRasCndYUBHkDFwrsdaVp1DLXlKnkELmSwxWtIRwQpIOL6e1SzLocDSFJGPu5Zdz3wh
+zQtgE9LNxz9BzPl/TdRm6o7rH9BPC7dskXgBqNgAAD4h7fnAz460rTqGWtKynsQpzJYJWvIQdiFJ3xfT2qWZdDgaQpIx93LLue+FMaNsAnpZuOfpOBl/TtSm
+6lt1j4Qnhdu2R7wA1GwAAB8Q9vzhAY60rTqGWvKVPIIXMlhitaQjghSQcX09qlmXQ4GkKSMfdyy7nvgOaFsAnpZuOfoOZ8v6bqM3VHdY/oJ4Xbtki8ANRsAA
+AfEPb84GfHWladQy1pWU9iFOZLBK15CDsQpO+L6e1SzLocDSFJGPu5Zdz3wpjRtgE9LNxz9JwMv6dqU3UtusfCE8Lt2yPeAGo2AAAPiHt+cIx2t+kl4/4HJO
+ia3Rp6VHXsSNHIhYEewnzlvB6Ouf9Ef64C6b6j0x7gRZyWdSg+Q9zj3GV707KQylyQR5zItWBDusKAjzti5VFa+0l/ock6JrdGlpUdexI0ckZYEFD/OW8Ho6
+++/wI/1yIXTfUemPcCLOxaRSg+Q9zj3GV707KQylyQR5zItWBTusKA/yBi4BWt+kl4/4HJOia3Rp6VHXsSNHIhYEewnzlvB6Ouf9Ef64C6b6j0x7gRZyWdSg
++Q9zj3GV707KQylyQR5zItWBDusKAjzti5VFa+0l/ock6JrdGlpUdexI0ckZYEFD/OW8Ho6++/wI/wBciF031Hpj3AizsWkUoPkPc49xle9OykMpckEecyLV
+gU7rCgP8gYuB2OtO06hlryFT2Pt75ksErXkIOxCkg4vp7VLUmhwNIUkbduWXc98BjRtgE9LNxz9JwPGX9O1KbqW3WPYITwu3bI94AajYAAA+IeB+cAMdaVp1
+DLXlZTyCFzJYJWvIwOxCkjF9PapZl0OBpCkjH3csu574Uxo2wCelm45+k4GX9N1KXqW3WPb2E8Ltki+ANRsbbAfEPb84GfHWnadQy15Cp7H298yWCVryEHYh
+SQcX09qlqTQ4GkKSNu3LLue+EMaNsAnpZuOfpOB4y/p2pTdS26x7BCeF27ZHvADUbAAAHxDwPzgBjrStOoZa8rKeQQuZLBK15GB2IUkYvp7VLMuhwNIUkY+7
+ll3PfCmNG2AT0s3HP0nAy/pupS9S26x7ewnhdskXwBqNjbYD4h7fnAxWvtJf6H/5knRNbo0tKjr2JGjkjLAj2E+ct4PR1vMEf64Qmneo9Me2EWclnUoPkPc5
+ouMr3ZmVgwLkgjMi1YEO6woD/IXF2wCtfaS/0OSdE1ujS0qOvYkaORCwI9hPnLeD0dff/BH+uAuneo9Me4EWdizqUHyHuce4yvemZSGUuSCPOZFrQKd1hQEf
++YuFFa+0l/of/mSdE1ujS0qOvYkaOSMsCPYT5y3g9HW8wR/rhCad6j0x7YRZyWdSg+Q9zmi4yvdmZWDAuSCMyLVgQ7rCgP8AIXF2wCtfaS/0OSdE1ujS0qOv
+YkaORCwI9hPnLeD0dff/AAR/rgLp3qPTHuBFnYs6lB8h7nHuMr3pmUhlLkgjzmRa0CndYUBH/mLhX//Z
+]]
+
+local BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local BASE64_LOOKUP = {}
+for index = 1, #BASE64_CHARS do
+	BASE64_LOOKUP[string.byte(BASE64_CHARS, index)] = index - 1
+end
+
+local function decodeBase64(text)
+	local bytes = {}
+	local count = 0
+	local buffer = 0
+	local bits = 0
+	for index = 1, #text do
+		local value = BASE64_LOOKUP[string.byte(text, index)]
+		if value then
+			buffer = buffer * 64 + value
+			bits = bits + 6
+			if bits >= 8 then
+				bits = bits - 8
+				local divisor = 2 ^ bits
+				local byte = math.floor(buffer / divisor)
+				buffer = buffer - byte * divisor
+				count = count + 1
+				bytes[count] = string.char(byte)
+			end
+		end
+	end
+	return table.concat(bytes)
+end
+
+local function loadEmbeddedImage(fileName, base64Text)
+	if typeof(writefile) ~= "function" or typeof(getcustomasset) ~= "function" then
+		return nil
+	end
+	local ok, result = pcall(function()
+		writefile(fileName, decodeBase64(base64Text))
+		return getcustomasset(fileName)
+	end)
+	if ok and type(result) == "string" and result ~= "" then
+		return result
+	end
+	return nil
+end
+
+local BUTTON_IMAGE = loadEmbeddedImage("ScriptLibrary_button.png", BUTTON_PNG_B64)
+local STUDS_IMAGE = loadEmbeddedImage("ScriptLibrary_studs.jpg", STUDS_JPG_B64)
+local ICONS_IMAGE = loadEmbeddedImage("ScriptLibrary_icons.png", ICONS_PNG_B64)
+local OPEN_SIZE = BUTTON_IMAGE and Vector2.new(104, 37) or Vector2.new(76, 38)
+
+local TAB_INFO = {
+	All = {label = "All", width = 64},
+	Movement = {label = "Movement", width = 110},
+	Utility = {label = "Utility", width = 94},
+	Visual = {label = "Visual", width = 88},
+	Player = {label = "Player", width = 90},
+	Miscellaneous = {label = "Misc", width = 80},
+}
+
+-- Position of each black sketch inside the embedded icon sheet (8 columns of 64 px)
+local ICON_CELL = 64
+local ICON_COLUMNS = 8
+local ICON_SLOTS = {
+	["Walk Speed"] = 0,
+	["Jump Power"] = 1,
+	["Infinite Jump"] = 2,
+	["Fly"] = 3,
+	["Noclip"] = 4,
+	["FPS Counter"] = 5,
+	["Anti AFK"] = 6,
+	["Server Info"] = 7,
+	["Fullbright"] = 8,
+	["Time of Day"] = 9,
+	["Field of View"] = 10,
+	["Max Zoom"] = 11,
+	["Highlight Self"] = 12,
+	["Rainbow Glow"] = 13,
+	["Reset Character"] = 14,
+	["Sit Down"] = 15,
+	["Gravity"] = 16,
+	["Hip Height"] = 17,
+	["Spin"] = 18,
+	["Spectate Next"] = 19,
+	["Crosshair"] = 20,
+	["Reset Camera"] = 21,
+	["Rejoin Server"] = 22,
+	All = 23,
+	Movement = 24,
+	Utility = 25,
+	Visual = 26,
+	Player = 27,
+	Miscellaneous = 28,
+	Code = 29,
+}
+
+local BLACK = Color3.new(0, 0, 0)
+local WHITE = Color3.new(1, 1, 1)
+local COLORS = {
+	blue = {Color3.fromRGB(90, 200, 255), Color3.fromRGB(16, 96, 226)},
+	yellow = {Color3.fromRGB(255, 218, 72), Color3.fromRGB(255, 146, 14)},
+	green = {Color3.fromRGB(150, 240, 70), Color3.fromRGB(46, 174, 24)},
+	red = {Color3.fromRGB(255, 112, 112), Color3.fromRGB(210, 28, 28)},
+}
+local STATUS_COLORS = {
+	ok = Color3.fromRGB(170, 255, 100),
+	error = Color3.fromRGB(255, 120, 120),
+	info = WHITE,
+}
+local CATEGORY_COLORS = {
+	Movement = {Color3.fromRGB(196, 255, 125), Color3.fromRGB(104, 216, 58)},
+	Utility = {Color3.fromRGB(156, 228, 255), Color3.fromRGB(74, 164, 246)},
+	Visual = {Color3.fromRGB(236, 196, 255), Color3.fromRGB(178, 120, 242)},
+	Player = {Color3.fromRGB(255, 176, 166), Color3.fromRGB(242, 98, 92)},
+	Miscellaneous = {Color3.fromRGB(228, 235, 248), Color3.fromRGB(162, 178, 208)},
+}
+local RUNNING_COLORS = {Color3.fromRGB(204, 255, 140), Color3.fromRGB(88, 206, 58)}
+local PRESS_INFO = TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+------------------------------------------------------------------------
+-- HELPERS
+------------------------------------------------------------------------
+
+local function create(className, props, parent)
+	local inst = Instance.new(className)
+	for key, value in pairs(props) do
+		inst[key] = value
+	end
+	inst.Parent = parent
+	return inst
+end
+
+local function tween(inst, info, goal)
+	local t = TweenService:Create(inst, info, goal)
+	t:Play()
+	return t
+end
+
+local function addGradient(inst, colors, rotation)
+	return create("UIGradient", {
+		Color = ColorSequence.new(colors[1], colors[2]),
+		Rotation = rotation or 90,
+	}, inst)
+end
+
+local function recolor(inst, colors)
+	local gradient = inst:FindFirstChildOfClass("UIGradient")
+	if gradient then
+		gradient.Color = ColorSequence.new(colors[1], colors[2])
+	end
+end
+
+local function addShine(parent)
+	local shine = create("Frame", {
+		Name = "Shine",
+		BackgroundColor3 = WHITE,
+		BackgroundTransparency = 0.8,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, 4, 0, 3),
+		Size = UDim2.new(1, -8, 0.4, 0),
+		ZIndex = 2,
+	}, parent)
+	create("UICorner", {CornerRadius = UDim.new(0, 6)}, shine)
+	return shine
+end
+
+-- Black sketch from the embedded icon sheet
+local function addIcon(parent, slot, size, position)
+	if not ICONS_IMAGE or not slot then
+		return nil
+	end
+	return create("ImageLabel", {
+		Name = "Sketch",
+		BackgroundTransparency = 1,
+		Position = position,
+		Size = UDim2.fromOffset(size, size),
+		Image = ICONS_IMAGE,
+		ImageRectSize = Vector2.new(ICON_CELL, ICON_CELL),
+		ImageRectOffset = Vector2.new((slot % ICON_COLUMNS) * ICON_CELL, math.floor(slot / ICON_COLUMNS) * ICON_CELL),
+		ZIndex = 4,
+	}, parent)
+end
+
+local function styleText(label, size)
+	label.Font = Enum.Font.FredokaOne
+	label.TextColor3 = WHITE
+	if size then
+		label.TextSize = size
+	end
+	create("UIStroke", {Thickness = 2, Color = BLACK}, label)
+end
+
+-- Studs texture: tiled picture when available, otherwise drawn with small squares
+local function addStuds(parent, inset, cols, rows, cell, stud, color, transparency, imageTint, imageTransparency)
+	if STUDS_IMAGE then
+		local layer = create("ImageLabel", {
+			Name = "Studs",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(inset, inset),
+			Size = UDim2.new(1, -inset * 2, 1, -inset * 2),
+			Image = STUDS_IMAGE,
+			ImageColor3 = imageTint,
+			ImageTransparency = imageTransparency,
+			ScaleType = Enum.ScaleType.Tile,
+			TileSize = UDim2.fromOffset(cell * 4, cell * 4),
+		}, parent)
+		create("UICorner", {CornerRadius = UDim.new(0, 8)}, layer)
+		return layer
+	end
+	local layer = create("Frame", {
+		Name = "Studs",
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(inset, inset),
+		Size = UDim2.new(1, -inset * 2, 1, -inset * 2),
+	}, parent)
+	local gap = (cell - stud) / 2
+	for row = 0, rows - 1 do
+		for col = 0, cols - 1 do
+			local square = create("Frame", {
+				BackgroundColor3 = color,
+				BackgroundTransparency = transparency,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(col * cell + gap, row * cell + gap),
+				Size = UDim2.fromOffset(stud, stud),
+			}, layer)
+			create("UICorner", {CornerRadius = UDim.new(0, 3)}, square)
+		end
+	end
+	return layer
+end
+
+local globalConnections = {}
+
+local function track(connection)
+	table.insert(globalConnections, connection)
+	return connection
+end
+
+local function newScope()
+	local items = {}
+	local scope = {}
+	function scope.add(item)
+		table.insert(items, item)
+		return item
+	end
+	function scope.clean()
+		for index = #items, 1, -1 do
+			local item = items[index]
+			items[index] = nil
+			local kind = typeof(item)
+			if kind == "RBXScriptConnection" then
+				item:Disconnect()
+			elseif kind == "Instance" then
+				item:Destroy()
+			elseif kind == "function" then
+				pcall(item)
+			end
+		end
+	end
+	return scope
+end
+
+local function getHumanoid()
+	local character = player.Character
+	return character and character:FindFirstChildOfClass("Humanoid")
+end
+
+local function getRoot()
+	local character = player.Character
+	return character and character:FindFirstChild("HumanoidRootPart")
+end
+
+local function getPing()
+	local ok, value = pcall(function()
+		return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+	end)
+	if ok and type(value) == "number" then
+		return math.floor(value + 0.5)
+	end
+	return 0
+end
+
+local function makeOptions(prefix, values)
+	local options = {}
+	for _, value in ipairs(values) do
+		table.insert(options, {text = prefix .. " " .. tostring(value), value = value})
+	end
+	return options
+end
+
+local function makeButton(parent, text, colors, size, position, maxTextSize)
+	local button = create("TextButton", {
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		Size = size,
+		Position = position,
+	}, parent)
+	create("UICorner", {CornerRadius = UDim.new(0, 8)}, button)
+	create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, button)
+	addGradient(button, colors)
+	addShine(button)
+	local label = create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -8, 0.8, 0),
+		Text = text,
+		TextScaled = true,
+		ZIndex = 3,
+	}, button)
+	styleText(label)
+	create("UITextSizeConstraint", {MaxTextSize = maxTextSize or 20, MinTextSize = 8}, label)
+
+	local idle = UDim2.fromScale(0.5, 0.5)
+	local pressed = UDim2.new(0.5, 0, 0.5, 2)
+	button.MouseButton1Down:Connect(function()
+		tween(button, PRESS_INFO, {BackgroundColor3 = Color3.fromRGB(165, 165, 165)})
+		label.Position = UDim2.new(label.Position.X.Scale, label.Position.X.Offset, 0.5, 2)
+	end)
+	local function release()
+		tween(button, PRESS_INFO, {BackgroundColor3 = WHITE})
+		label.Position = UDim2.new(label.Position.X.Scale, label.Position.X.Offset, 0.5, 0)
+	end
+	button.MouseButton1Up:Connect(release)
+	button.MouseLeave:Connect(release)
+	return button, label
+end
+
+------------------------------------------------------------------------
+-- ROOT GUI
+------------------------------------------------------------------------
+
+local oldGui = playerGui:FindFirstChild("ScriptLibraryGui")
+if oldGui then
+	oldGui:Destroy()
+end
+
+local gui = create("ScreenGui", {
+	Name = "ScriptLibraryGui",
+	ResetOnSpawn = false,
+	IgnoreGuiInset = true,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+	DisplayOrder = 100,
+}, playerGui)
+
+------------------------------------------------------------------------
+-- SCRIPT REGISTRY
+-- kind = "toggle": start(scope, value) -> true/false, message
+--        everything added with scope.add() is cleaned up on stop
+-- kind = "action": run(value) -> true/false, message
+-- options (optional): list of {text, value}, cycled with the blue button
+-- persist = true: restarted automatically after the character respawns
+-- image = "rbxassetid://ID" (optional): picture shown instead of the emoji icon
+------------------------------------------------------------------------
+
+local scripts = {}
+
+local function register(def)
+	def.optionIndex = 1
+	def.running = false
+	table.insert(scripts, def)
+end
+
+-- MOVEMENT ------------------------------------------------------------
+
+register({
+	name = "Walk Speed",
+	category = "Movement",
+	kind = "toggle",
+	desc = "Run faster than the default walk speed.",
+	options = makeOptions("Speed", {24, 32, 50, 80, 120}),
+	start = function(scope, value)
+		local humanoid = getHumanoid()
+		if not humanoid then
+			return false, "Character not ready"
+		end
+		local original = humanoid.WalkSpeed
+		scope.add(RunService.Heartbeat:Connect(function()
+			local current = getHumanoid()
+			if current and current.WalkSpeed ~= value then
+				current.WalkSpeed = value
+			end
+		end))
+		scope.add(function()
+			local current = getHumanoid()
+			if current then
+				current.WalkSpeed = original
+			end
+		end)
+		return true, "Walk speed set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Jump Power",
+	category = "Movement",
+	kind = "toggle",
+	desc = "Jump much higher than normal.",
+	options = makeOptions("Power", {70, 100, 150, 220}),
+	start = function(scope, value)
+		local humanoid = getHumanoid()
+		if not humanoid then
+			return false, "Character not ready"
+		end
+		local originalUse = humanoid.UseJumpPower
+		local originalPower = humanoid.JumpPower
+		scope.add(RunService.Heartbeat:Connect(function()
+			local current = getHumanoid()
+			if current then
+				if not current.UseJumpPower then
+					current.UseJumpPower = true
+				end
+				if current.JumpPower ~= value then
+					current.JumpPower = value
+				end
+			end
+		end))
+		scope.add(function()
+			local current = getHumanoid()
+			if current then
+				current.JumpPower = originalPower
+				current.UseJumpPower = originalUse
+			end
+		end)
+		return true, "Jump power set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Infinite Jump",
+	category = "Movement",
+	kind = "toggle",
+	desc = "Jump again while in the air.",
+	start = function(scope)
+		scope.add(UserInputService.JumpRequest:Connect(function()
+			local humanoid = getHumanoid()
+			if humanoid then
+				humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end))
+		return true, "Infinite jump enabled"
+	end,
+})
+
+register({
+	name = "Fly",
+	category = "Movement",
+	kind = "toggle",
+	persist = true,
+	desc = "Fly toward where the camera looks. PC: Space up, Shift down.",
+	options = makeOptions("Speed", {40, 70, 100, 150}),
+	start = function(scope, speed)
+		local humanoid = getHumanoid()
+		local root = getRoot()
+		if not humanoid or not root then
+			return false, "Character not ready"
+		end
+		local velocity = create("BodyVelocity", {
+			MaxForce = Vector3.new(1e9, 1e9, 1e9),
+			Velocity = Vector3.zero,
+		}, root)
+		local gyro = create("BodyGyro", {
+			MaxTorque = Vector3.new(1e9, 1e9, 1e9),
+			P = 9000,
+			CFrame = root.CFrame,
+		}, root)
+		local originalPlatform = humanoid.PlatformStand
+		humanoid.PlatformStand = true
+		scope.add(velocity)
+		scope.add(gyro)
+		scope.add(function()
+			humanoid.PlatformStand = originalPlatform
+		end)
+		scope.add(RunService.RenderStepped:Connect(function()
+			local camera = Workspace.CurrentCamera
+			if not camera or not root.Parent then
+				return
+			end
+			local look = camera.CFrame.LookVector
+			local flat = Vector3.new(look.X, 0, look.Z)
+			local move = humanoid.MoveDirection
+			local push = move * speed
+			if flat.Magnitude > 0.01 then
+				flat = flat.Unit
+				if move.Magnitude > 0 then
+					push = push + Vector3.new(0, look.Y * move:Dot(flat) * speed, 0)
+				end
+				gyro.CFrame = CFrame.lookAt(root.Position, root.Position + flat)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+				push = push + Vector3.new(0, speed, 0)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+				push = push - Vector3.new(0, speed, 0)
+			end
+			velocity.Velocity = push
+		end))
+		return true, "Fly enabled"
+	end,
+})
+
+register({
+	name = "Noclip",
+	category = "Movement",
+	kind = "toggle",
+	desc = "Walk through walls and objects.",
+	start = function(scope)
+		local touched = {}
+		scope.add(RunService.Stepped:Connect(function()
+			local character = player.Character
+			if not character then
+				return
+			end
+			for _, part in ipairs(character:GetDescendants()) do
+				if part:IsA("BasePart") and part.CanCollide then
+					touched[part] = true
+					part.CanCollide = false
+				end
+			end
+		end))
+		scope.add(function()
+			for part in pairs(touched) do
+				if part.Parent then
+					part.CanCollide = true
+				end
+			end
+		end)
+		return true, "Noclip enabled"
+	end,
+})
+
+-- UTILITY -------------------------------------------------------------
+
+register({
+	name = "FPS Counter",
+	category = "Utility",
+	kind = "toggle",
+	desc = "Shows your FPS and ping at the top of the screen.",
+	start = function(scope)
+		local panel = create("TextLabel", {
+			Name = "FpsCounter",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 6),
+			Size = UDim2.fromOffset(170, 30),
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+			Text = "FPS: --",
+		}, gui)
+		styleText(panel, 18)
+		create("UICorner", {CornerRadius = UDim.new(0, 8)}, panel)
+		create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, panel)
+		addGradient(panel, COLORS.yellow)
+		scope.add(panel)
+		local frames = 0
+		local elapsed = 0
+		scope.add(RunService.RenderStepped:Connect(function(dt)
+			frames = frames + 1
+			elapsed = elapsed + dt
+			if elapsed >= 0.5 then
+				panel.Text = string.format("FPS %d  |  %d ms", math.floor(frames / elapsed + 0.5), getPing())
+				frames = 0
+				elapsed = 0
+			end
+		end))
+		return true, "FPS counter enabled"
+	end,
+})
+
+register({
+	name = "Anti AFK",
+	category = "Utility",
+	kind = "toggle",
+	desc = "Prevents the idle kick after 20 minutes without input.",
+	start = function(scope)
+		scope.add(player.Idled:Connect(function()
+			VirtualUser:CaptureController()
+			VirtualUser:ClickButton2(Vector2.new(0, 0))
+		end))
+		return true, "Anti AFK enabled"
+	end,
+})
+
+register({
+	name = "Server Info",
+	category = "Utility",
+	kind = "action",
+	desc = "Shows player count and place id of this server.",
+	run = function()
+		return true, string.format("Players %d/%d  |  Place %d", #Players:GetPlayers(), Players.MaxPlayers, game.PlaceId)
+	end,
+})
+
+-- VISUAL --------------------------------------------------------------
+
+register({
+	name = "Fullbright",
+	category = "Visual",
+	kind = "toggle",
+	desc = "Removes darkness and fog so everything is bright.",
+	start = function(scope)
+		local original = {
+			Brightness = Lighting.Brightness,
+			ClockTime = Lighting.ClockTime,
+			FogEnd = Lighting.FogEnd,
+			GlobalShadows = Lighting.GlobalShadows,
+			Ambient = Lighting.Ambient,
+			OutdoorAmbient = Lighting.OutdoorAmbient,
+		}
+		Lighting.Brightness = 2
+		Lighting.ClockTime = 14
+		Lighting.FogEnd = 100000
+		Lighting.GlobalShadows = false
+		Lighting.Ambient = Color3.fromRGB(178, 178, 178)
+		Lighting.OutdoorAmbient = Color3.fromRGB(178, 178, 178)
+		scope.add(function()
+			for property, value in pairs(original) do
+				Lighting[property] = value
+			end
+		end)
+		return true, "Fullbright enabled"
+	end,
+})
+
+register({
+	name = "Time of Day",
+	category = "Visual",
+	kind = "action",
+	desc = "Changes the world clock. Pick a time, then press RUN.",
+	options = {
+		{text = "Day", value = 14},
+		{text = "Sunset", value = 18},
+		{text = "Night", value = 0},
+		{text = "Dawn", value = 6},
+	},
+	run = function(value)
+		Lighting.ClockTime = value
+		return true, "Clock time set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Field of View",
+	category = "Visual",
+	kind = "toggle",
+	desc = "Widens your camera view.",
+	options = makeOptions("FOV", {90, 100, 110, 120}),
+	start = function(scope, value)
+		local camera = Workspace.CurrentCamera
+		if not camera then
+			return false, "No camera found"
+		end
+		local original = camera.FieldOfView
+		scope.add(RunService.RenderStepped:Connect(function()
+			local current = Workspace.CurrentCamera
+			if current then
+				current.FieldOfView = value
+			end
+		end))
+		scope.add(function()
+			local current = Workspace.CurrentCamera
+			if current then
+				current.FieldOfView = original
+			end
+		end)
+		return true, "Field of view set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Max Zoom",
+	category = "Visual",
+	kind = "toggle",
+	desc = "Lets the camera zoom out much farther.",
+	options = makeOptions("Zoom", {128, 256, 400, 800}),
+	start = function(scope, value)
+		local original = player.CameraMaxZoomDistance
+		player.CameraMaxZoomDistance = value
+		scope.add(function()
+			player.CameraMaxZoomDistance = original
+		end)
+		return true, "Max zoom set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Highlight Self",
+	category = "Visual",
+	kind = "toggle",
+	persist = true,
+	desc = "Adds a golden glow around your character.",
+	start = function(scope)
+		local character = player.Character
+		if not character then
+			return false, "Character not ready"
+		end
+		local highlight = create("Highlight", {
+			Name = "LibraryHighlight",
+			FillColor = Color3.fromRGB(255, 200, 40),
+			OutlineColor = WHITE,
+			FillTransparency = 0.5,
+			DepthMode = Enum.HighlightDepthMode.AlwaysOnTop,
+		}, character)
+		scope.add(highlight)
+		return true, "Highlight enabled"
+	end,
+})
+
+register({
+	name = "Rainbow Glow",
+	category = "Visual",
+	kind = "toggle",
+	persist = true,
+	desc = "Your character glows with cycling rainbow colors.",
+	options = {
+		{text = "Slow", value = 0.15},
+		{text = "Normal", value = 0.4},
+		{text = "Fast", value = 1},
+	},
+	start = function(scope, speed)
+		local character = player.Character
+		if not character then
+			return false, "Character not ready"
+		end
+		local glow = create("Highlight", {
+			Name = "LibraryRainbow",
+			FillTransparency = 0.35,
+			OutlineColor = WHITE,
+			DepthMode = Enum.HighlightDepthMode.AlwaysOnTop,
+		}, character)
+		scope.add(glow)
+		local hue = 0
+		scope.add(RunService.RenderStepped:Connect(function(dt)
+			hue = (hue + dt * speed) % 1
+			glow.FillColor = Color3.fromHSV(hue, 0.85, 1)
+		end))
+		return true, "Rainbow glow enabled"
+	end,
+})
+
+-- PLAYER --------------------------------------------------------------
+
+register({
+	name = "Reset Character",
+	category = "Player",
+	kind = "action",
+	desc = "Respawns your character.",
+	run = function()
+		local humanoid = getHumanoid()
+		if not humanoid then
+			return false, "Character not ready"
+		end
+		humanoid.Health = 0
+		return true, "Character reset"
+	end,
+})
+
+register({
+	name = "Sit Down",
+	category = "Player",
+	kind = "action",
+	desc = "Makes your character sit instantly.",
+	run = function()
+		local humanoid = getHumanoid()
+		if not humanoid then
+			return false, "Character not ready"
+		end
+		humanoid.Sit = true
+		return true, "Sitting down"
+	end,
+})
+
+register({
+	name = "Gravity",
+	category = "Player",
+	kind = "toggle",
+	desc = "Changes world gravity for floaty jumps.",
+	options = {
+		{text = "Moon", value = 60},
+		{text = "Low", value = 100},
+		{text = "High", value = 300},
+	},
+	start = function(scope, value)
+		local original = Workspace.Gravity
+		Workspace.Gravity = value
+		scope.add(function()
+			Workspace.Gravity = original
+		end)
+		return true, "Gravity set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Hip Height",
+	category = "Player",
+	kind = "toggle",
+	desc = "Raises your character above the ground.",
+	options = makeOptions("Height", {4, 8, 15}),
+	start = function(scope, value)
+		local humanoid = getHumanoid()
+		if not humanoid then
+			return false, "Character not ready"
+		end
+		local original = humanoid.HipHeight
+		scope.add(RunService.Heartbeat:Connect(function()
+			local current = getHumanoid()
+			if current and current.HipHeight ~= value then
+				current.HipHeight = value
+			end
+		end))
+		scope.add(function()
+			local current = getHumanoid()
+			if current then
+				current.HipHeight = original
+			end
+		end)
+		return true, "Hip height set to " .. tostring(value)
+	end,
+})
+
+register({
+	name = "Spin",
+	category = "Player",
+	kind = "toggle",
+	desc = "Spins your character around.",
+	options = {
+		{text = "Slow", value = 4},
+		{text = "Medium", value = 12},
+		{text = "Fast", value = 30},
+	},
+	start = function(scope, degrees)
+		scope.add(RunService.Heartbeat:Connect(function()
+			local root = getRoot()
+			if root then
+				root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(degrees), 0)
+			end
+		end))
+		return true, "Spin enabled"
+	end,
+})
+
+do
+	local spectateIndex = 0
+	register({
+		name = "Spectate Next",
+		category = "Player",
+		kind = "action",
+		desc = "Watch the next player. Use Reset Camera to come back.",
+		run = function()
+			local others = {}
+			for _, other in ipairs(Players:GetPlayers()) do
+				if other ~= player then
+					table.insert(others, other)
+				end
+			end
+			if #others == 0 then
+				return false, "No other players in the server"
+			end
+			spectateIndex = spectateIndex % #others + 1
+			local target = others[spectateIndex]
+			local humanoid = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+			local camera = Workspace.CurrentCamera
+			if not humanoid or not camera then
+				return false, target.DisplayName .. " has no character yet"
+			end
+			camera.CameraSubject = humanoid
+			return true, "Watching " .. target.DisplayName
+		end,
+	})
+end
+
+-- MISCELLANEOUS -------------------------------------------------------
+
+register({
+	name = "Crosshair",
+	category = "Miscellaneous",
+	kind = "toggle",
+	desc = "Draws a small dot in the center of the screen.",
+	start = function(scope)
+		local dot = create("Frame", {
+			Name = "Crosshair",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(8, 8),
+			BackgroundColor3 = Color3.fromRGB(120, 255, 60),
+			BorderSizePixel = 0,
+		}, gui)
+		create("UICorner", {CornerRadius = UDim.new(1, 0)}, dot)
+		create("UIStroke", {Thickness = 2, Color = BLACK}, dot)
+		scope.add(dot)
+		return true, "Crosshair enabled"
+	end,
+})
+
+register({
+	name = "Reset Camera",
+	category = "Miscellaneous",
+	kind = "action",
+	desc = "Returns the camera to your character.",
+	run = function()
+		local camera = Workspace.CurrentCamera
+		local humanoid = getHumanoid()
+		if not camera or not humanoid then
+			return false, "Camera or character not ready"
+		end
+		camera.CameraType = Enum.CameraType.Custom
+		camera.CameraSubject = humanoid
+		return true, "Camera reset"
+	end,
+})
+
+register({
+	name = "Rejoin Server",
+	category = "Miscellaneous",
+	kind = "action",
+	desc = "Teleports you back into this game.",
+	run = function()
+		local ok, err = pcall(function()
+			TeleportService:Teleport(game.PlaceId, player)
+		end)
+		if not ok then
+			return false, "Teleport failed: " .. tostring(err)
+		end
+		return true, "Rejoining..."
+	end,
+})
+
+local function getDefaultStatus()
+	local count = 0
+	for _, def in ipairs(scripts) do
+		if def.running then
+			count = count + 1
+		end
+	end
+	return string.format("%s   Active: %d", DEFAULT_STATUS, count)
+end
+
+------------------------------------------------------------------------
+-- MAIN WINDOW
+------------------------------------------------------------------------
+
+local main = create("Frame", {
+	Name = "Main",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.fromOffset(DESIGN_W, DESIGN_H),
+	BackgroundColor3 = WHITE,
+	BackgroundTransparency = 0.1,
+	BorderSizePixel = 0,
+	Visible = false,
+}, gui)
+create("UICorner", {CornerRadius = UDim.new(0, 12)}, main)
+create("UIStroke", {Thickness = 4, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, main)
+
+addGradient(main, {Color3.fromRGB(38, 38, 58), Color3.fromRGB(14, 14, 24)})
+local mainScale = create("UIScale", {Scale = 0}, main)
+addStuds(main, 6, math.ceil(DESIGN_W / 24), math.ceil(DESIGN_H / 24), 24, 14, Color3.fromRGB(120, 120, 175), 0.65, Color3.fromRGB(120, 130, 205), 0.4)
+
+local header = create("Frame", {
+	Name = "Header",
+	Position = UDim2.fromOffset(6, 6),
+	Size = UDim2.new(1, -12, 0, 50),
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+}, main)
+create("UICorner", {CornerRadius = UDim.new(0, 8)}, header)
+create("UIStroke", {Thickness = 4, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, header)
+addGradient(header, COLORS.blue)
+addStuds(header, 4, math.ceil((DESIGN_W - 12) / 20), 2, 20, 12, Color3.fromRGB(175, 228, 255), 0.55, Color3.fromRGB(175, 235, 255), 0.45)
+addShine(header)
+
+local iconBox = create("Frame", {
+	Name = "Icon",
+	Position = UDim2.new(0, 8, 0.5, -17),
+	Size = UDim2.fromOffset(34, 34),
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+	ZIndex = 3,
+}, header)
+create("UICorner", {CornerRadius = UDim.new(0, 7)}, iconBox)
+create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, iconBox)
+addGradient(iconBox, COLORS.yellow)
+local iconLabel = create("TextLabel", {
+	BackgroundTransparency = 1,
+	Size = UDim2.fromScale(1, 1),
+	Text = "</>",
+	TextScaled = true,
+	ZIndex = 4,
+}, iconBox)
+styleText(iconLabel)
+if ICONS_IMAGE then
+	iconLabel.Text = ""
+	addIcon(iconBox, ICON_SLOTS.Code, 24, UDim2.fromOffset(5, 5))
+end
+
+local titleLabel = create("TextLabel", {
+	Name = "Title",
+	BackgroundTransparency = 1,
+	Position = UDim2.new(0, 52, 0.1, 0),
+	Size = UDim2.new(1, -112, 0.8, 0),
+	Text = LIBRARY_NAME,
+	TextScaled = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 3,
+}, header)
+styleText(titleLabel)
+create("UITextSizeConstraint", {MaxTextSize = 32, MinTextSize = 10}, titleLabel)
+
+local closeButton = makeButton(header, "X", COLORS.red, UDim2.fromOffset(38, 38), UDim2.new(1, -46, 0.5, -19), 26)
+closeButton.ZIndex = 4
+
+-- Screen fitting and dragging
+local function getViewport()
+	local viewport = gui.AbsoluteSize
+	if viewport.X < 1 or viewport.Y < 1 then
+		local camera = Workspace.CurrentCamera
+		viewport = camera and camera.ViewportSize or Vector2.new(1280, 720)
+	end
+	return viewport
+end
+
+local function getFitScale()
+	local viewport = getViewport()
+	local fit = math.min(viewport.X * 0.85 / DESIGN_W, viewport.Y * 0.8 / DESIGN_H)
+	if UserInputService.TouchEnabled then
+		fit = fit * 0.9
+	end
+	return math.clamp(fit, 0.35, 1)
+end
+
+local function getWindowSize()
+	return Vector2.new(DESIGN_W, DESIGN_H) * getFitScale()
+end
+
+local function clampPosition(position, size, anchor)
+	local viewport = getViewport()
+	local x = position.X.Scale * viewport.X + position.X.Offset
+	local y = position.Y.Scale * viewport.Y + position.Y.Offset
+	local minX = size.X * anchor.X
+	local minY = size.Y * anchor.Y
+	x = math.clamp(x, minX, math.max(minX, viewport.X - size.X * (1 - anchor.X)))
+	y = math.clamp(y, minY, math.max(minY, viewport.Y - size.Y * (1 - anchor.Y)))
+	return UDim2.fromOffset(x, y)
+end
+
+local function makeDraggable(handle, target, getSize, onTap)
+	local active = false
+	local moved = false
+	local startPointer = Vector2.zero
+	local startPosition = target.Position
+
+	handle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			active = true
+			moved = false
+			startPointer = Vector2.new(input.Position.X, input.Position.Y)
+			startPosition = target.Position
+		end
+	end)
+	track(UserInputService.InputChanged:Connect(function(input)
+		if not active then
+			return
+		end
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			local delta = Vector2.new(input.Position.X, input.Position.Y) - startPointer
+			if delta.Magnitude > 6 then
+				moved = true
+			end
+			if moved then
+				local wanted = UDim2.new(
+					startPosition.X.Scale, startPosition.X.Offset + delta.X,
+					startPosition.Y.Scale, startPosition.Y.Offset + delta.Y
+				)
+				target.Position = clampPosition(wanted, getSize(), target.AnchorPoint)
+			end
+		end
+	end))
+	track(UserInputService.InputEnded:Connect(function(input)
+		if not active then
+			return
+		end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			active = false
+			if not moved and onTap then
+				onTap()
+			end
+		end
+	end))
+end
+
+makeDraggable(header, main, getWindowSize, nil)
+
+-- Category tabs
+local tabBar = create("ScrollingFrame", {
+	Name = "Tabs",
+	Position = UDim2.fromOffset(10, 62),
+	Size = UDim2.new(1, -20, 0, 44),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 0,
+	ScrollingDirection = Enum.ScrollingDirection.X,
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+	CanvasSize = UDim2.new(),
+}, main)
+create("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	Padding = UDim.new(0, 6),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+}, tabBar)
+create("UIPadding", {PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4)}, tabBar)
+
+-- Script list
+local listPanel = create("Frame", {
+	Name = "ListPanel",
+	Position = UDim2.fromOffset(10, 110),
+	Size = UDim2.new(1, -20, 1, -214),
+	BackgroundColor3 = Color3.fromRGB(8, 8, 16),
+	BackgroundTransparency = 0.35,
+	BorderSizePixel = 0,
+}, main)
+create("UICorner", {CornerRadius = UDim.new(0, 8)}, listPanel)
+create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, listPanel)
+
+local scroller = create("ScrollingFrame", {
+	Name = "Scroller",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 8,
+	ScrollBarImageColor3 = Color3.fromRGB(255, 190, 40),
+	ScrollingDirection = Enum.ScrollingDirection.Y,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+}, listPanel)
+create("UIListLayout", {
+	Padding = UDim.new(0, 8),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, scroller)
+create("UIPadding", {
+	PaddingTop = UDim.new(0, 8),
+	PaddingBottom = UDim.new(0, 8),
+	PaddingLeft = UDim.new(0, 8),
+	PaddingRight = UDim.new(0, 14),
+}, scroller)
+
+local emptyLabel = create("TextLabel", {
+	Name = "Empty",
+	BackgroundTransparency = 1,
+	Size = UDim2.fromScale(1, 1),
+	Text = "No scripts found",
+	TextSize = 22,
+	Visible = false,
+}, listPanel)
+styleText(emptyLabel)
+
+-- Bottom panel (status + search)
+local bottomPanel = create("Frame", {
+	Name = "BottomPanel",
+	AnchorPoint = Vector2.new(0, 1),
+	Position = UDim2.new(0, 10, 1, -10),
+	Size = UDim2.new(1, -20, 0, 84),
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+}, main)
+create("UICorner", {CornerRadius = UDim.new(0, 8)}, bottomPanel)
+create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, bottomPanel)
+create("UIGradient", {
+	Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 150, 16)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 226, 90)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 150, 16)),
+	}),
+	Rotation = 0,
+}, bottomPanel)
+
+local statusLabel = create("TextLabel", {
+	Name = "Status",
+	BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(10, 6),
+	Size = UDim2.new(1, -20, 0, 26),
+	Text = getDefaultStatus(),
+	TextScaled = true,
+}, bottomPanel)
+styleText(statusLabel)
+create("UITextSizeConstraint", {MaxTextSize = 22, MinTextSize = 10}, statusLabel)
+
+local searchBox = create("TextBox", {
+	Name = "Search",
+	Position = UDim2.fromOffset(10, 38),
+	Size = UDim2.new(1, -200, 0, 38),
+	BackgroundColor3 = Color3.fromRGB(8, 8, 8),
+	BorderSizePixel = 0,
+	Font = Enum.Font.FredokaOne,
+	Text = "",
+	PlaceholderText = "Search scripts...",
+	PlaceholderColor3 = Color3.fromRGB(120, 120, 120),
+	TextColor3 = WHITE,
+	TextSize = 20,
+	ClearTextOnFocus = false,
+	TextXAlignment = Enum.TextXAlignment.Left,
+}, bottomPanel)
+create("UICorner", {CornerRadius = UDim.new(0, 6)}, searchBox)
+create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, searchBox)
+create("UIPadding", {PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10)}, searchBox)
+
+local clearButton = makeButton(bottomPanel, "Clear", COLORS.green, UDim2.fromOffset(70, 38), UDim2.new(1, -180, 0, 38), 20)
+local stopAllButton = makeButton(bottomPanel, "Stop All", COLORS.red, UDim2.fromOffset(92, 38), UDim2.new(1, -102, 0, 38), 20)
+
+-- Floating open/close button
+local openButton
+if BUTTON_IMAGE then
+	openButton = create("ImageButton", {
+		Name = "OpenButton",
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Size = UDim2.fromOffset(OPEN_SIZE.X, OPEN_SIZE.Y),
+		Position = UDim2.new(0, 10, 0.5, -18),
+		Image = BUTTON_IMAGE,
+		ScaleType = Enum.ScaleType.Stretch,
+	}, gui)
+	local function releaseOpen()
+		tween(openButton, PRESS_INFO, {ImageColor3 = WHITE})
+	end
+	openButton.MouseButton1Down:Connect(function()
+		tween(openButton, PRESS_INFO, {ImageColor3 = Color3.fromRGB(170, 170, 170)})
+	end)
+	openButton.MouseButton1Up:Connect(releaseOpen)
+	openButton.MouseLeave:Connect(releaseOpen)
+else
+	openButton = makeButton(
+		gui,
+		"LIB",
+		{Color3.fromRGB(196, 255, 40), Color3.fromRGB(48, 172, 36)},
+		UDim2.fromOffset(OPEN_SIZE.X, OPEN_SIZE.Y),
+		UDim2.new(0, 10, 0.5, -19),
+		22
+	)
+end
+
+------------------------------------------------------------------------
+-- LIBRARY LOGIC
+------------------------------------------------------------------------
+
+local currentCategory = "All"
+local isOpen = false
+local statusToken = 0
+local tabs = {}
+
+local function setStatus(message, kind)
+	statusToken = statusToken + 1
+	local token = statusToken
+	statusLabel.Text = message
+	statusLabel.TextColor3 = STATUS_COLORS[kind] or WHITE
+	task.delay(5, function()
+		if token == statusToken then
+			statusLabel.Text = getDefaultStatus()
+			statusLabel.TextColor3 = WHITE
+		end
+	end)
+end
+
+local function currentOption(def)
+	if def.options then
+		return def.options[def.optionIndex]
+	end
+	return nil
+end
+
+local function refreshCard(def)
+	local ui = def.ui
+	if not ui then
+		return
+	end
+	local stateText
+	if def.kind == "toggle" then
+		if def.running then
+			recolor(ui.runButton, COLORS.red)
+			ui.runLabel.Text = "STOP"
+			stateText = '<font color="#7CFF3C">● ON</font>'
+		else
+			recolor(ui.runButton, COLORS.green)
+			ui.runLabel.Text = "START"
+			stateText = '<font color="#E0E0E0">● OFF</font>'
+		end
+	else
+		recolor(ui.runButton, COLORS.green)
+		ui.runLabel.Text = "RUN"
+		stateText = '<font color="#FFFFFF">● READY</font>'
+	end
+	recolor(def.card, def.running and RUNNING_COLORS or COLORS.yellow)
+	ui.tag.Text = def.category .. "   " .. stateText
+	local option = currentOption(def)
+	if ui.optionLabel and option then
+		ui.optionLabel.Text = option.text
+	end
+end
+
+local function stopScript(def)
+	if def.scope then
+		def.scope.clean()
+	end
+	def.scope = nil
+	def.running = false
+end
+
+local function startScript(def)
+	local scope = newScope()
+	local option = currentOption(def)
+	local ok, result, message = pcall(def.start, scope, option and option.value)
+	if not ok or result == false then
+		scope.clean()
+		def.scope = nil
+		def.running = false
+		local reason = message
+		if not ok then
+			reason = result
+		end
+		setStatus(def.name .. ": " .. tostring(reason or "failed"), "error")
+		return false
+	end
+	def.scope = scope
+	def.running = true
+	setStatus(message or (def.name .. " enabled"), "ok")
+	return true
+end
+
+local function activate(def)
+	if def.kind == "action" then
+		local option = currentOption(def)
+		local ok, result, message = pcall(def.run, option and option.value)
+		if not ok then
+			setStatus(def.name .. " failed: " .. tostring(result), "error")
+		elseif result == false then
+			setStatus(message or (def.name .. " failed"), "error")
+		else
+			setStatus(message or (def.name .. " done"), "ok")
+		end
+	elseif def.running then
+		stopScript(def)
+		setStatus(def.name .. " stopped", "info")
+	else
+		startScript(def)
+	end
+	refreshCard(def)
+end
+
+local function cycleOption(def)
+	if not def.options then
+		return
+	end
+	def.optionIndex = def.optionIndex % #def.options + 1
+	if def.kind == "toggle" and def.running then
+		stopScript(def)
+		startScript(def)
+	else
+		setStatus(def.name .. ": " .. def.options[def.optionIndex].text, "info")
+	end
+	refreshCard(def)
+end
+
+local function stopAll()
+	local count = 0
+	for _, def in ipairs(scripts) do
+		if def.running then
+			stopScript(def)
+			refreshCard(def)
+			count = count + 1
+		end
+	end
+	if count == 0 then
+		setStatus("Nothing is running", "info")
+	else
+		setStatus("Stopped " .. tostring(count) .. " script(s)", "ok")
+	end
+end
+
+local function applyFilter()
+	local query = string.lower(searchBox.Text)
+	local shown = 0
+	for _, def in ipairs(scripts) do
+		local inCategory = currentCategory == "All" or def.category == currentCategory
+		local inSearch = query == ""
+			or string.find(string.lower(def.name), query, 1, true) ~= nil
+			or string.find(string.lower(def.desc), query, 1, true) ~= nil
+		local visible = inCategory and inSearch
+		if def.card then
+			def.card.Visible = visible
+		end
+		if visible then
+			shown = shown + 1
+		end
+	end
+	emptyLabel.Visible = shown == 0
+end
+
+local function selectCategory(name)
+	currentCategory = name
+	for category, tab in pairs(tabs) do
+		if category == name then
+			recolor(tab, COLORS.green)
+		else
+			recolor(tab, COLORS.yellow)
+		end
+	end
+	scroller.CanvasPosition = Vector2.zero
+	applyFilter()
+	for _, def in ipairs(scripts) do
+		if def.ui and def.card.Visible then
+			def.ui.pop.Scale = 0.86
+			tween(def.ui.pop, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 1})
+		end
+	end
+end
+
+local function setOpen(state)
+	isOpen = state
+	if state then
+		main.Visible = true
+		main.Position = clampPosition(main.Position, getWindowSize(), main.AnchorPoint)
+		tween(mainScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = getFitScale()})
+	else
+		local closing = tween(mainScale, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Scale = 0})
+		closing.Completed:Once(function()
+			if not isOpen then
+				main.Visible = false
+			end
+		end)
+	end
+	
+end
+
+------------------------------------------------------------------------
+-- CARDS AND TABS
+------------------------------------------------------------------------
+
+local function buildIcon(parent, def)
+	local tile = create("Frame", {
+		Name = "Icon",
+		Position = UDim2.new(0, 8, 0.5, -26),
+		Size = UDim2.fromOffset(52, 52),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, parent)
+	create("UICorner", {CornerRadius = UDim.new(0, 8)}, tile)
+	create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, tile)
+	addGradient(tile, CATEGORY_COLORS[def.category] or COLORS.blue)
+	addShine(tile)
+	if def.image then
+		create("ImageLabel", {
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(4, 4),
+			Size = UDim2.new(1, -8, 1, -8),
+			Image = def.image,
+			ScaleType = Enum.ScaleType.Fit,
+			ZIndex = 4,
+		}, tile)
+	elseif ICONS_IMAGE and ICON_SLOTS[def.name] then
+		addIcon(tile, ICON_SLOTS[def.name], 38, UDim2.fromOffset(7, 7))
+	else
+		local letter = create("TextLabel", {
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Text = string.upper(string.sub(def.name, 1, 1)),
+			Font = Enum.Font.FredokaOne,
+			TextColor3 = BLACK,
+			TextSize = 30,
+			ZIndex = 4,
+		}, tile)
+		letter.TextStrokeTransparency = 1
+	end
+end
+
+local function buildCard(def, order)
+	local card = create("Frame", {
+		Name = def.name,
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, 82),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+	}, scroller)
+	create("UICorner", {CornerRadius = UDim.new(0, 8)}, card)
+	create("UIStroke", {Thickness = 3, Color = BLACK, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, card)
+	addGradient(card, COLORS.yellow)
+	addShine(card)
+	buildIcon(card, def)
+	local pop = create("UIScale", {Scale = 1}, card)
+
+	local nameLabel = create("TextLabel", {
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(68, 4),
+		Size = UDim2.new(1, -174, 0, 24),
+		Text = def.name,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		ZIndex = 3,
+	}, card)
+	styleText(nameLabel, 20)
+
+	local descLabel = create("TextLabel", {
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(68, 27),
+		Size = UDim2.new(1, -174, 0, 32),
+		Text = def.desc,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		ZIndex = 3,
+	}, card)
+	styleText(descLabel, 14)
+
+	local tag = create("TextLabel", {
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 68, 1, -21),
+		Size = UDim2.new(1, -174, 0, 16),
+		Text = "",
+		RichText = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 3,
+	}, card)
+	styleText(tag, 14)
+
+	local runButton, runLabel
+	local optionLabel
+	if def.options then
+		runButton, runLabel = makeButton(card, "START", COLORS.green, UDim2.fromOffset(88, 34), UDim2.new(1, -98, 0, 8), 20)
+		local optionButton
+		optionButton, optionLabel = makeButton(card, "", COLORS.blue, UDim2.fromOffset(88, 28), UDim2.new(1, -98, 0, 46), 16)
+		optionButton.Activated:Connect(function()
+			cycleOption(def)
+		end)
+	else
+		runButton, runLabel = makeButton(card, "START", COLORS.green, UDim2.fromOffset(88, 42), UDim2.new(1, -98, 0.5, -21), 20)
+	end
+	runButton.Activated:Connect(function()
+		activate(def)
+	end)
+
+	def.card = card
+	def.ui = {
+		runButton = runButton,
+		runLabel = runLabel,
+		optionLabel = optionLabel,
+		tag = tag,
+		pop = pop,
+	}
+	refreshCard(def)
+end
+
+for index, def in ipairs(scripts) do
+	buildCard(def, index)
+end
+
+for index, category in ipairs(CATEGORIES) do
+	local info = TAB_INFO[category]
+	local tab, tabLabel = makeButton(tabBar, info.label, COLORS.yellow, UDim2.fromOffset(info.width, 34), UDim2.new(), 16)
+	if ICONS_IMAGE then
+		tabLabel.AnchorPoint = Vector2.new(1, 0.5)
+		tabLabel.Position = UDim2.new(1, -6, 0.5, 0)
+		tabLabel.Size = UDim2.new(1, -34, 0.8, 0)
+		addIcon(tab, ICON_SLOTS[category], 22, UDim2.new(0, 7, 0.5, -11))
+	end
+	tab.LayoutOrder = index
+	tab.Activated:Connect(function()
+		selectCategory(category)
+	end)
+	tabs[category] = tab
+end
+
+------------------------------------------------------------------------
+-- EVENTS
+------------------------------------------------------------------------
+
+closeButton.Activated:Connect(function()
+	setOpen(false)
+end)
+
+makeDraggable(openButton, openButton, function()
+	return OPEN_SIZE
+end, function()
+	setOpen(not isOpen)
+end)
+
+clearButton.Activated:Connect(function()
+	searchBox.Text = ""
+end)
+
+stopAllButton.Activated:Connect(stopAll)
+
+searchBox:GetPropertyChangedSignal("Text"):Connect(applyFilter)
+
+gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	if isOpen then
+		mainScale.Scale = getFitScale()
+		main.Position = clampPosition(main.Position, getWindowSize(), main.AnchorPoint)
+	end
+	openButton.Position = clampPosition(openButton.Position, OPEN_SIZE, openButton.AnchorPoint)
+end)
+
+track(UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then
+		return
+	end
+	if input.KeyCode == Enum.KeyCode.RightControl then
+		setOpen(not isOpen)
+	end
+end))
+
+-- Restart scripts that depend on the character after respawning
+track(player.CharacterAdded:Connect(function(character)
+	character:WaitForChild("Humanoid", 10)
+	character:WaitForChild("HumanoidRootPart", 10)
+	for _, def in ipairs(scripts) do
+		if def.running and def.persist then
+			stopScript(def)
+			startScript(def)
+			refreshCard(def)
+		end
+	end
+end))
+
+-- Clean everything if the GUI is destroyed
+gui.Destroying:Connect(function()
+	for _, def in ipairs(scripts) do
+		stopScript(def)
+	end
+	for _, connection in ipairs(globalConnections) do
+		connection:Disconnect()
+	end
+	table.clear(globalConnections)
+end)
+
+------------------------------------------------------------------------
+-- START
+------------------------------------------------------------------------
+
+selectCategory("All")
+setOpen(true)
